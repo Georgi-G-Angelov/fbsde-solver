@@ -58,6 +58,9 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
+    plt.savefig('Allen-Cahn training loss')
+    plt.cla()
+
 
     plt.figure()
     plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
@@ -74,6 +77,8 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title(str(D) + '-dimensional Allen-Cahn, ' + model.mode + "-" + model.activation)
     plt.legend()
+    plt.savefig('Allen-Cahn solution')
+    plt.cla()
 
     errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
     mean_errors = np.mean(errors, 0)
@@ -103,7 +108,7 @@ if __name__ == "__main__":
     "Available architectures"
     mode = "FC"  # FC, Resnet and NAIS-Net are available
     activation = "sine"  # sine and ReLU are available
-    model = BlackScholesBarenblatt(Xi, T,
-                                   M, N, D,
-                                   layers, mode, activation)
+    model = AllenCahn(Xi, T,
+                        M, N, D,
+                        layers, mode, activation)
     run_model(model, 2*10**4, 1e-3)

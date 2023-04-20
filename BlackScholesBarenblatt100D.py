@@ -58,6 +58,8 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
+    plt.savefig('Black-Scholes training loss')
+    plt.cla()
 
     plt.figure()
     plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
@@ -74,6 +76,8 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
+    plt.savefig('Black-Scholes solution')
+    plt.cla()
 
     errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
     mean_errors = np.mean(errors, 0)
@@ -87,7 +91,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
     plt.savefig(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
-
+    # plt.cla(
 
 if __name__ == "__main__":
     tot = time.time()
