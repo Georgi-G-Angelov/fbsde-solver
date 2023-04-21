@@ -49,8 +49,10 @@ def run_model(model, N_Iter, learning_rate):
     if type(Y_pred).__module__ != 'numpy':
         Y_pred = Y_pred.cpu().detach().numpy()
 
-    Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
-                        [M, -1, 1])
+    # Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
+                        # [M, -1, 1])
+
+    Y_test = 1.0/(2.0 + 0.4*np.sum(X_pred[:,-1,:]**2, 1, keepdims = True))
 
     plt.figure()
     plt.plot(graph[0], graph[1])
