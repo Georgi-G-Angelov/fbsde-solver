@@ -113,4 +113,6 @@ if __name__ == "__main__":
     model = AllenCahn(Xi, T,
                         M, N, D,
                         layers, mode, activation)
-    run_model(model, 2*10**4, 1e-3)
+    # run_model(model, 2*10**4, 1e-3)
+    run_model(model, 12000, 1e-3)
+    
