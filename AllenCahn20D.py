@@ -25,10 +25,10 @@ class AllenCahn(FBSNN):
     ###########################################################################
 
 
-def u_exact(t, X):  # (N+1) x 1, (N+1) x D
-    r = 0.05
-    sigma_max = 0.4
-    return np.exp((r + sigma_max ** 2) * (T - t)) * np.sum(X ** 2, 1, keepdims=True)  # (N+1) x 1
+# def u_exact(t, X):  # (N+1) x 1, (N+1) x D
+#     r = 0.05
+#     sigma_max = 0.4
+#     return np.exp((r + sigma_max ** 2) * (T - t)) * np.sum(X ** 2, 1, keepdims=True)  # (N+1) x 1
 
 
 def run_model(model, N_Iter, learning_rate):
@@ -124,8 +124,10 @@ if __name__ == "__main__":
 
     layers = [D + 1] + 4 * [256] + [1]
 
-    Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
-    T = 1.0
+    # Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
+    # T = 1.0
+    T = 0.3
+    Xi = np.zeros([1,D])
 
     "Available architectures"
     mode = "FC"  # FC, Resnet and NAIS-Net are available
