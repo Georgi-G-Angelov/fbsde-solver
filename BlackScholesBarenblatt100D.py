@@ -130,4 +130,4 @@ if __name__ == "__main__":
                                    layers, mode, activation)
     
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1001, 1e-3, multilevel=True)
+    run_model(model, 1000, 1e-3, multilevel=True)

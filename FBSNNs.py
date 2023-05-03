@@ -150,9 +150,9 @@ class FBSNN(ABC):
     def train(self, N_Iter, learning_rate):
         loss_temp = np.array([])
 
-        previous_it = 0
+        previous_it = 1
         if self.iteration != []:
-            previous_it = self.iteration[-1]
+            previous_it = self.iteration[-1] + 1
 
         # Optimizers
         self.optimizer = optim.Adam(self.model.parameters(), lr=learning_rate)
@@ -167,7 +167,7 @@ class FBSNN(ABC):
             loss.backward()
             self.optimizer.step()
 
-            loss_temp = np.append(loss_temp, loss.cpu().detach().numpy())
+            # loss_temp = np.append(loss_temp, loss.cpu().detach().numpy())
 
             # Print
             if it % 100 == 0:
@@ -178,8 +178,9 @@ class FBSNN(ABC):
 
             # Loss
             if it % 100 == 0:
-                self.training_loss.append(loss_temp.mean())
-                loss_temp = np.array([])
+                # self.training_loss.append(loss_temp.mean())
+                # loss_temp = np.array([])
+                self.training_loss.append(loss.cpu().detach().numpy())
 
                 self.iteration.append(it)
 

@@ -93,7 +93,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('relative error')
     plt.title('100-dimensional Hamilton-Jacobi-Bellman')
     plt.legend()
-    plt.savefig("Hamilton-Jacobi-Bellman error" + "-multilevel-" + str(multilevel))
+    plt.savefig("plots/Hamilton-Jacobi-Bellman error" + "-multilevel-" + str(multilevel))
     plt.cla()
 
     errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
@@ -113,6 +113,9 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
  
     plt.figure()
     plt.plot(graph[0], graph[1])
+    if multilevel:
+        for i in range(1, num_levels):
+            plt.axvline(x=(N_Iter - 1) * i, color = 'red')
     plt.xlabel('Iterations')
     plt.ylabel('Value')
     plt.yscale("log")
@@ -175,4 +178,4 @@ if __name__ == "__main__":
                                    M, N, D,
                                    layers, mode, activation)
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1001, 1e-3, multilevel=True)
+    run_model(model, 1000, 1e-3, multilevel=True)
