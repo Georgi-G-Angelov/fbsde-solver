@@ -24,12 +24,27 @@ class AllenCahn(FBSNN):
 
     ###########################################################################
 
-def run_model(model, N_Iter, learning_rate):
+def run_model(model, N_Iter, learning_rate, multilevel=False):
     tot = time.time()
     samples = 5
     print(model.device)
-    graph = model.train(N_Iter, learning_rate)
-    print("total time:", time.time() - tot, "s")
+    if multilevel:
+        num_levels = 5
+
+        num_time_snapshots = 2
+        for _ in range(num_levels):
+            model.N = num_time_snapshots
+            graph = model.train(N_Iter, learning_rate)
+            num_time_snapshots = num_time_snapshots * 2
+        
+        stop_time = time.time()
+
+       
+    else:
+        graph = model.train(N_Iter, learning_rate)
+        stop_time = time.time()
+
+    print("total time:", stop_time - tot, "s")
 
     np.random.seed(42)
     t_test, W_test = model.fetch_minibatch()
@@ -55,7 +70,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title('20-dimensional Allen-Cahn')
     plt.legend()
-    plt.savefig("Allen-Cahn solution")
+    plt.savefig("plots/Allen-Cahn solution" + "-multilevel-" + str(multilevel))
 
     plt.figure()
     plt.plot(graph[0], graph[1])
@@ -63,7 +78,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('Allen-Cahn training loss')
+    plt.savefig('plots/Allen-Cahn training loss' + "-multilevel-" + str(multilevel))
     plt.cla()
 
 
@@ -99,5 +114,5 @@ if __name__ == "__main__":
                         M, N, D,
                         layers, mode, activation)
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 12000, 1e-3)
+    run_model(model, 1001, 1e-3, multilevel=True)
     

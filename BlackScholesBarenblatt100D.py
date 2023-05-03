@@ -39,28 +39,15 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     if multilevel:
         num_levels = 5
 
-        graphs = []
         num_time_snapshots = 2
         for _ in range(num_levels):
             model.N = num_time_snapshots
             graph = model.train(N_Iter, learning_rate)
-            graphs.append(graph[1])
             num_time_snapshots = num_time_snapshots * 2
-            print(graph.shape)
         
         stop_time = time.time()
 
-        loss = np.zeros(num_levels * N_Iter)
-        iters = np.zeros(num_levels * N_Iter)
-        i = 0
-        for lvl in graphs:
-            for loss_value in lvl:
-                loss[i] = loss_value
-                i += 1
-                iters[i-1] = i
-
-        graph = [iters, loss]        
-        
+       
     else:
         graph = model.train(N_Iter, learning_rate)
         stop_time = time.time()
@@ -83,11 +70,14 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     plt.figure()
     plt.plot(graph[0], graph[1])
+    if multilevel:
+        for i in range(1, num_levels):
+            plt.axvline(x=(N_Iter - 1) * i, color = 'red')
     plt.xlabel('Iterations')
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('Black-Scholes training loss')
+    plt.savefig('plots/Black-Scholes training loss' + "-multilevel-" + str(multilevel))
     plt.cla()
 
     plt.figure()
@@ -105,7 +95,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig('Black-Scholes solution')
+    plt.savefig('plots/Black-Scholes solution' + "-multilevel-" + str(multilevel))
     plt.cla()
 
     errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
@@ -119,7 +109,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('relative error')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
+    plt.savefig('plots/Black-Scholes errors, ' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
 
 if __name__ == "__main__":
     tot = time.time()
@@ -140,4 +130,4 @@ if __name__ == "__main__":
                                    layers, mode, activation)
     
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 100, 1e-3, multilevel=True)
+    run_model(model, 1001, 1e-3, multilevel=True)

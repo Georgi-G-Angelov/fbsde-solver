@@ -35,12 +35,27 @@ def u_exact(t, X): # NC x 1, NC x D
     
     return -np.log(np.mean(np.exp(-g(X + np.sqrt(2.0*np.abs(T-t))*W)),axis=0))
 
-def run_model(model, N_Iter, learning_rate):
+def run_model(model, N_Iter, learning_rate, multilevel=False):
     tot = time.time()
-    samples = 1
+    samples = 2
     print(model.device)
-    graph = model.train(N_Iter, learning_rate)
-    print("total time:", time.time() - tot, "s")
+    if multilevel:
+        num_levels = 5
+
+        num_time_snapshots = 2
+        for _ in range(num_levels):
+            model.N = num_time_snapshots
+            graph = model.train(N_Iter, learning_rate)
+            num_time_snapshots = num_time_snapshots * 2
+        
+        stop_time = time.time()
+
+       
+    else:
+        graph = model.train(N_Iter, learning_rate)
+        stop_time = time.time()
+
+    print("total time:", stop_time - tot, "s")
 
     np.random.seed(42)
     t_test, W_test = model.fetch_minibatch()
@@ -68,7 +83,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title('100-dimensional Hamilton-Jacobi-Bellman')
     plt.legend()
-    plt.savefig("Hamilton-Jacobi-Bellman solution")    
+    plt.savefig("plots/Hamilton-Jacobi-Bellman solution")    
     
     errors = np.sqrt((Y_test-Y_pred[0,:,:])**2/Y_test**2)
     
@@ -78,7 +93,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('relative error')
     plt.title('100-dimensional Hamilton-Jacobi-Bellman')
     plt.legend()
-    plt.savefig("Hamilton-Jacobi-Bellman error")
+    plt.savefig("Hamilton-Jacobi-Bellman error" + "-multilevel-" + str(multilevel))
     plt.cla()
 
     errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
@@ -92,7 +107,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('relative error')
     plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig("Hamilton-Jacobi-Bellman errors")
+    plt.savefig("plots/Hamilton-Jacobi-Bellman errors" + "-multilevel-" + str(multilevel))
     plt.cla()
 
  
@@ -102,7 +117,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('Hamilton-Jacobi-Bellman training loss')
+    plt.savefig('plots/Hamilton-Jacobi-Bellman training loss' + "-multilevel-" + str(multilevel))
     plt.cla()
 
     # plt.figure()
@@ -160,4 +175,4 @@ if __name__ == "__main__":
                                    M, N, D,
                                    layers, mode, activation)
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 500, 1e-3)
+    run_model(model, 1001, 1e-3, multilevel=True)
