@@ -31,11 +31,27 @@ def u_exact(t, X):  # (N+1) x 1, (N+1) x D
     return np.exp((r + sigma_max ** 2) * (T - t)) * np.sum(X ** 2, 1, keepdims=True)  # (N+1) x 1
 
 
-def run_model(model, N_Iter, learning_rate):
+def run_model(model, N_Iter, learning_rate, multilevel=False):
     tot = time.time()
     samples = 5
     print(model.device)
-    graph = model.train(N_Iter, learning_rate)
+
+    if multilevel:
+        graphs = []
+        num_time_snapshots = 2
+        for _ in range(5):
+            model.N = num_time_snapshots
+            graph = model.train(N_Iter, learning_rate)
+            graphs.append(graph[1])
+            num_time_snapshots = num_time_snapshots * 2
+
+        # print(graphs.shape)
+        # indices = np.arange(1, N_Iter * 5 + 1)
+        # graph = np.array([graphs, indices])
+        
+    else:
+        graph = model.train(N_Iter, learning_rate)
+
     print("total time:", time.time() - tot, "s")
 
     np.random.seed(42)
@@ -52,14 +68,14 @@ def run_model(model, N_Iter, learning_rate):
     Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
                         [M, -1, 1])
 
-    plt.figure()
-    plt.plot(graph[0], graph[1])
-    plt.xlabel('Iterations')
-    plt.ylabel('Value')
-    plt.yscale("log")
-    plt.title('Evolution of the training loss')
-    plt.savefig('Black-Scholes training loss')
-    plt.cla()
+    # plt.figure()
+    # plt.plot(graph[0], graph[1])
+    # plt.xlabel('Iterations')
+    # plt.ylabel('Value')
+    # plt.yscale("log")
+    # plt.title('Evolution of the training loss')
+    # plt.savefig('Black-Scholes training loss')
+    # plt.cla()
 
     plt.figure()
     plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
@@ -91,7 +107,6 @@ def run_model(model, N_Iter, learning_rate):
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
     plt.savefig(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
-    # plt.cla(
 
 if __name__ == "__main__":
     tot = time.time()
@@ -110,4 +125,6 @@ if __name__ == "__main__":
     model = BlackScholesBarenblatt(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
-    run_model(model, 2*10**4, 1e-3)
+    
+    # run_model(model, 2*10**4, 1e-3)
+    run_model(model, 1000, 1e-3, multilevel=True)

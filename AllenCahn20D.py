@@ -42,10 +42,6 @@ def run_model(model, N_Iter, learning_rate):
     if type(Y_pred).__module__ != 'numpy':
         Y_pred = Y_pred.cpu().detach().numpy()
 
-    # Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
-                        # [M, -1, 1])
-
-
     samples = 5
     
     Y_test_terminal = 1.0/(2.0 + 0.4*np.sum(X_pred[:,-1,:]**2, 1, keepdims = True))
@@ -71,30 +67,6 @@ def run_model(model, N_Iter, learning_rate):
     plt.cla()
 
 
-    # plt.figure()
-    # plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
-    # plt.plot(t_test[0:1, :, 0].T, Y_test[0:1, :, 0].T, 'r--', label='Exact $u(t,X_t)$')
-    # plt.plot(t_test[0:1, -1, 0], Y_test[0:1, -1, 0], 'ko', label='$Y_T = u(T,X_T)$')
-
-    # plt.plot(t_test[1:samples, :, 0].T, Y_pred[1:samples, :, 0].T, 'b')
-    # plt.plot(t_test[1:samples, :, 0].T, Y_test[1:samples, :, 0].T, 'r--')
-    # plt.plot(t_test[1:samples, -1, 0], Y_test[1:samples, -1, 0], 'ko')
-
-    # plt.plot([0], Y_test[0, 0, 0], 'ks', label='$Y_0 = u(0,X_0)$')
-
-
-    # plt.plot(t_test[0,:,0].T,Y_pred[0,:,0].T,'b',label='Learned $u(t,X_t)$')
-    # plt.plot(t_test[1:samples,:,0].T,Y_pred[1:samples,:,0].T,'b')
-    # plt.plot(t_test[0:samples,-1,0],Y_test_terminal[0:samples,0],'ks',label='$Y_T = u(T,X_T)$')
-    # plt.plot([0],[0.30879],'ko',label='$Y_0 = u(0,X_0)$')
-
-    # plt.xlabel('$t$')
-    # plt.ylabel('$Y_t = u(t,X_t)$')
-    # plt.title(str(D) + '-dimensional Allen-Cahn, ' + model.mode + "-" + model.activation)
-    # plt.legend()
-    # plt.savefig('Allen-Cahn solution')
-    # plt.cla()
-
     # errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
     # mean_errors = np.mean(errors, 0)
     # std_errors = np.std(errors, 0)
@@ -117,8 +89,6 @@ if __name__ == "__main__":
 
     layers = [D + 1] + 4 * [256] + [1]
 
-    # Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
-    # T = 1.0
     T = 0.3
     Xi = np.zeros([1,D])
 

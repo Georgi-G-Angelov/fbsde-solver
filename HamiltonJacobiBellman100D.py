@@ -79,12 +79,23 @@ def run_model(model, N_Iter, learning_rate):
     plt.title('100-dimensional Hamilton-Jacobi-Bellman')
     plt.legend()
     plt.savefig("Hamilton-Jacobi-Bellman error")
+    plt.cla()
 
-    # Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
-    #                     [M, -1, 1])
+    errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
+    mean_errors = np.mean(errors, 0)
+    std_errors = np.std(errors, 0)
 
-    # Y_test = u_exact(t_test[0,:,:], X_pred[0,:,:])
+    plt.figure()
+    plt.plot(t_test[0, :, 0], mean_errors, 'b', label='mean')
+    plt.plot(t_test[0, :, 0], mean_errors + 2 * std_errors, 'r--', label='mean + two standard deviations')
+    plt.xlabel('$t$')
+    plt.ylabel('relative error')
+    plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
+    plt.legend()
+    plt.savefig("Hamilton-Jacobi-Bellman errors")
+    plt.cla()
 
+ 
     plt.figure()
     plt.plot(graph[0], graph[1])
     plt.xlabel('Iterations')
