@@ -24,13 +24,6 @@ class AllenCahn(FBSNN):
 
     ###########################################################################
 
-
-# def u_exact(t, X):  # (N+1) x 1, (N+1) x D
-#     r = 0.05
-#     sigma_max = 0.4
-#     return np.exp((r + sigma_max ** 2) * (T - t)) * np.sum(X ** 2, 1, keepdims=True)  # (N+1) x 1
-
-
 def run_model(model, N_Iter, learning_rate):
     tot = time.time()
     samples = 5
@@ -64,7 +57,7 @@ def run_model(model, N_Iter, learning_rate):
     plt.plot([0],[0.30879],'ko',label='$Y_0 = u(0,X_0)$')
     plt.xlabel('$t$')
     plt.ylabel('$Y_t = u(t,X_t)$')
-    plt.title('100-dimensional Allen-Cahn')
+    plt.title('20-dimensional Allen-Cahn')
     plt.legend()
     plt.savefig("Allen-Cahn solution")
 
@@ -120,7 +113,7 @@ if __name__ == "__main__":
     tot = time.time()
     M = 100  # number of trajectories (batch size)
     N = 50  # number of time snapshots
-    D = 100  # number of dimensions
+    D = 20  # number of dimensions
 
     layers = [D + 1] + 4 * [256] + [1]
 
