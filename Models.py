@@ -16,7 +16,27 @@ class ConvNet(nn.Module):
     def __init__(self, layers, activation):
         super(ConvNet, self).__init__()
 
-        
+        self.linear = nn.Linear(in_features=layers[0], out_features=256)
+        self.conv1 = nn.Conv1d(256, 128, 5)
+        self.conv2 = nn.Conv1d(128, 64, 5)
+        self.conv3 = nn.Conv1d(64, 16, 5)
+        self.conv4 = nn.Conv1d(16, 1, 5)
+
+        self.activation = activation
+
+    def forward(self, x):
+        out = self.linear(x)
+        out = self.activation(out)
+        out = self.conv1(out)
+        out = self.activation(out)
+        out = self.conv2(out)
+        out = self.activation(out)
+        out = self.conv3(out)
+        out = self.activation(out)
+        out = self.conv4(out)
+        # out = self.activation(out)
+
+        return out
 
 
 class Resnet(nn.Module):
