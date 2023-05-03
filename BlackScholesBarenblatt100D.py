@@ -123,11 +123,14 @@ if __name__ == "__main__":
     T = 1.0
 
     "Available architectures"
-    mode = "FC"  # FC, Resnet and NAIS-Net are available
+    # mode = "FC"  # FC, Resnet and NAIS-Net are available
+    mode = "ConvNet"
     activation = "sine"  # sine and ReLU are available
     model = BlackScholesBarenblatt(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
+    
+    print(model.count_parameters())
     
     # run_model(model, 2*10**4, 1e-3)
     run_model(model, 1000, 1e-3, multilevel=True)

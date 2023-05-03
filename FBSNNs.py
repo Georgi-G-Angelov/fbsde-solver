@@ -55,6 +55,8 @@ class FBSNN(ABC):
             self.model = VerletNet(layers, activation=self.activation_function).to(self.device)
         elif self.mode == "SDEnet":
             self.model = SDEnet(layers, activation=self.activation_function).to(self.device)
+        elif self.mode == "ConvNet":
+            self.model = ConvNet(layers, activation=self.activation_function).to(self.device)
 
         self.model.apply(self.weights_init)
 
@@ -193,6 +195,9 @@ class FBSNN(ABC):
         loss, X_star, Y_star, Y0_pred = self.loss_function(t_star, W_star, Xi_star)
 
         return X_star, Y_star
+    
+    def count_parameters(self):
+        return sum(p.numel() for p in self.model.parameters() if p.requires_grad)
 
     ###########################################################################
     ############################# Change Here! ################################
