@@ -37,22 +37,35 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     print(model.device)
 
     if multilevel:
+        num_levels = 5
+
         graphs = []
         num_time_snapshots = 2
-        for _ in range(5):
+        for _ in range(num_levels):
             model.N = num_time_snapshots
             graph = model.train(N_Iter, learning_rate)
             graphs.append(graph[1])
             num_time_snapshots = num_time_snapshots * 2
+            print(graph.shape)
+        
+        stop_time = time.time()
 
-        # print(graphs.shape)
-        # indices = np.arange(1, N_Iter * 5 + 1)
-        # graph = np.array([graphs, indices])
+        loss = np.zeros(num_levels * N_Iter)
+        iters = np.zeros(num_levels * N_Iter)
+        i = 0
+        for lvl in graphs:
+            for loss_value in lvl:
+                loss[i] = loss_value
+                i += 1
+                iters[i-1] = i
+
+        graph = [iters, loss]        
         
     else:
         graph = model.train(N_Iter, learning_rate)
+        stop_time = time.time()
 
-    print("total time:", time.time() - tot, "s")
+    print("total time:", stop_time - tot, "s")
 
     np.random.seed(42)
     t_test, W_test = model.fetch_minibatch()
@@ -68,14 +81,14 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
                         [M, -1, 1])
 
-    # plt.figure()
-    # plt.plot(graph[0], graph[1])
-    # plt.xlabel('Iterations')
-    # plt.ylabel('Value')
-    # plt.yscale("log")
-    # plt.title('Evolution of the training loss')
-    # plt.savefig('Black-Scholes training loss')
-    # plt.cla()
+    plt.figure()
+    plt.plot(graph[0], graph[1])
+    plt.xlabel('Iterations')
+    plt.ylabel('Value')
+    plt.yscale("log")
+    plt.title('Evolution of the training loss')
+    plt.savefig('Black-Scholes training loss')
+    plt.cla()
 
     plt.figure()
     plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
@@ -127,4 +140,4 @@ if __name__ == "__main__":
                                    layers, mode, activation)
     
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1000, 1e-3, multilevel=True)
+    run_model(model, 100, 1e-3, multilevel=True)
