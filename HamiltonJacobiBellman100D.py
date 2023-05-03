@@ -53,10 +53,37 @@ def run_model(model, N_Iter, learning_rate):
     if type(Y_pred).__module__ != 'numpy':
         Y_pred = Y_pred.cpu().detach().numpy()
 
+    Y_test = u_exact(t_test[0,:,:], X_pred[0,:,:])
+    
+    Y_test_terminal = np.log(0.5 + 0.5*np.sum(X_pred[:,-1,:]**2, axis=1, keepdims=True))
+    
+    plt.figure()
+    plt.plot(t_test[0:1,:,0].T,Y_pred[0:1,:,0].T,'b',label='Learned $u(t,X_t)$')
+    #plt.plot(t_test[1:5,:,0].T,Y_pred[1:5,:,0].T,'b')
+    plt.plot(t_test[0,:,0].T,Y_test[:,0].T,'r--',label='Exact $u(t,X_t)$')
+    plt.plot(t_test[0:1,-1,0],Y_test_terminal[0:1,0],'ks',label='$Y_T = u(T,X_T)$')
+    #plt.plot(t_test[1:5,-1,0],Y_test_terminal[1:5,0])
+    plt.plot([0],Y_test[0,0],'ko',label='$Y_0 = u(0,X_0)$')
+    plt.xlabel('$t$')
+    plt.ylabel('$Y_t = u(t,X_t)$')
+    plt.title('100-dimensional Hamilton-Jacobi-Bellman')
+    plt.legend()
+    plt.savefig("Hamilton-Jacobi-Bellman solution")    
+    
+    errors = np.sqrt((Y_test-Y_pred[0,:,:])**2/Y_test**2)
+    
+    plt.figure()
+    plt.plot(t_test[0,:,0],errors,'b')
+    plt.xlabel('$t$')
+    plt.ylabel('relative error')
+    plt.title('100-dimensional Hamilton-Jacobi-Bellman')
+    plt.legend()
+    plt.savefig("Hamilton-Jacobi-Bellman error")
+
     # Y_test = np.reshape(u_exact(np.reshape(t_test[0:M, :, :], [-1, 1]), np.reshape(X_pred[0:M, :, :], [-1, D])),
     #                     [M, -1, 1])
 
-    Y_test = u_exact(t_test[0,:,:], X_pred[0,:,:])
+    # Y_test = u_exact(t_test[0,:,:], X_pred[0,:,:])
 
     plt.figure()
     plt.plot(graph[0], graph[1])
@@ -67,40 +94,41 @@ def run_model(model, N_Iter, learning_rate):
     plt.savefig('Hamilton-Jacobi-Bellman training loss')
     plt.cla()
 
-    plt.figure()
-    plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
-    plt.plot(t_test[0:1, :, 0].T, Y_test[0:1, :, 0].T, 'r--', label='Exact $u(t,X_t)$')
+    # plt.figure()
+    # plt.plot(t_test[0:1, :, 0].T, Y_pred[0:1, :, 0].T, 'b', label='Learned $u(t,X_t)$')
+    # plt.plot(t_test[0:1, :, 0].T, Y_test[0:1, :, 0].T, 'r--', label='Exact $u(t,X_t)$')
     # plt.plot(t_test[0:1, -1, 0], Y_test[0:1, -1, 0], 'ko', label='$Y_T = u(T,X_T)$')
 
 
-    Y_test_terminal = np.log(0.5 + 0.5*np.sum(X_pred[:,-1,:]**2, axis=1, keepdims=True))
-    plt.plot(t_test[0:1,-1,0],Y_test_terminal[0:1,0],'ks',label='$Y_T = u(T,X_T)$')
+    # Y_test_terminal = np.log(0.5 + 0.5*np.sum(X_pred[:,-1,:]**2, axis=1, keepdims=True))
+    # plt.plot(t_test[0:1,-1,0],Y_test_terminal[0:1,0],'ks',label='$Y_T = u(T,X_T)$')
 
-    plt.plot(t_test[1:samples, :, 0].T, Y_pred[1:samples, :, 0].T, 'b')
-    plt.plot(t_test[1:samples, :, 0].T, Y_test[1:samples, :, 0].T, 'r--')
-    plt.plot(t_test[1:samples, -1, 0], Y_test[1:samples, -1, 0], 'ko')
+    # plt.plot(t_test[1:samples, :, 0].T, Y_pred[1:samples, :, 0].T, 'b')
+    # plt.plot(t_test[1:samples, :, 0].T, Y_test[1:samples, :, 0].T, 'r--')
+    # plt.plot(t_test[1:samples, -1, 0], Y_test[1:samples, -1, 0], 'ko')
 
-    plt.plot([0], Y_test[0, 0, 0], 'ks', label='$Y_0 = u(0,X_0)$')
+    # plt.plot([0], Y_test[0, 0, 0], 'ks', label='$Y_0 = u(0,X_0)$')
 
-    plt.xlabel('$t$')
-    plt.ylabel('$Y_t = u(t,X_t)$')
-    plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
-    plt.legend()
-    plt.savefig('Hamilton-Jacobi-Bellman solution')
-    plt.cla()
+    # plt.xlabel('$t$')
+    # plt.ylabel('$Y_t = u(t,X_t)$')
+    # plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
+    # plt.legend()
+    # plt.savefig('Hamilton-Jacobi-Bellman solution')
+    # plt.cla()
+    
 
-    errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
-    mean_errors = np.mean(errors, 0)
-    std_errors = np.std(errors, 0)
+    # errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
+    # mean_errors = np.mean(errors, 0)
+    # std_errors = np.std(errors, 0)
 
-    plt.figure()
-    plt.plot(t_test[0, :, 0], mean_errors, 'b', label='mean')
-    plt.plot(t_test[0, :, 0], mean_errors + 2 * std_errors, 'r--', label='mean + two standard deviations')
-    plt.xlabel('$t$')
-    plt.ylabel('relative error')
-    plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
-    plt.legend()
-    plt.savefig(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
+    # plt.figure()
+    # plt.plot(t_test[0, :, 0], mean_errors, 'b', label='mean')
+    # plt.plot(t_test[0, :, 0], mean_errors + 2 * std_errors, 'r--', label='mean + two standard deviations')
+    # plt.xlabel('$t$')
+    # plt.ylabel('relative error')
+    # plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
+    # plt.legend()
+    # plt.savefig(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
     # plt.cla(
 
 if __name__ == "__main__":
