@@ -72,7 +72,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.plot(graph[0], graph[1])
     if multilevel:
         for i in range(1, num_levels):
-            plt.axvline(x=(N_Iter - 1) * i, color = 'red')
+            plt.axvline(x=N_Iter * i, color = 'red')
     plt.xlabel('Iterations')
     plt.ylabel('Value')
     plt.yscale("log")
@@ -133,4 +133,4 @@ if __name__ == "__main__":
     print(model.count_parameters())
     
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1000, 1e-3, multilevel=True)
+    run_model(model, 3000, 1e-3, multilevel=True)

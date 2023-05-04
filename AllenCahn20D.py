@@ -76,7 +76,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.plot(graph[0], graph[1])
     if multilevel:
         for i in range(1, num_levels):
-            plt.axvline(x=(N_Iter - 1) * i, color = 'red')
+            plt.axvline(x=N_Iter  * i, color = 'red')
     plt.xlabel('Iterations')
     plt.ylabel('Value')
     plt.yscale("log")
