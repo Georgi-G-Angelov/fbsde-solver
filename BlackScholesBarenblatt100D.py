@@ -38,11 +38,13 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     if multilevel:
         num_levels = 5
+        learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
 
         num_time_snapshots = 2
-        for _ in range(num_levels):
+        for i in range(num_levels):
+            # print(i)
             model.N = num_time_snapshots
-            graph = model.train(N_Iter, learning_rate)
+            graph = model.train(N_Iter, learning_rates[i])
             num_time_snapshots = num_time_snapshots * 2
         
         stop_time = time.time()
@@ -123,9 +125,10 @@ if __name__ == "__main__":
     T = 1.0
 
     "Available architectures"
-    # mode = "FC"  # FC, Resnet and NAIS-Net are available
+    mode = "FC"  # FC, Resnet and NAIS-Net are available
     mode = "ConvNet"
     activation = "sine"  # sine and ReLU are available
+    # activation = "ReLU"
     model = BlackScholesBarenblatt(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
@@ -133,4 +136,4 @@ if __name__ == "__main__":
     print(model.count_parameters())
     
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 3000, 1e-3, multilevel=True)
+    run_model(model, 500, 5e-3, multilevel=True)
