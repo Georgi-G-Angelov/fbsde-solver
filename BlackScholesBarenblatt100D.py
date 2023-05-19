@@ -119,7 +119,9 @@ if __name__ == "__main__":
     N = 50  # number of time snapshots
     D = 100  # number of dimensions
 
-    layers = [D + 1] + 4 * [256] + [1]
+    # layers = [D + 1] + 4 * [256] + [1]
+    layers = [D + 1] + 4 * [64] + [1]
+
 
     Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
     T = 1.0
@@ -127,6 +129,8 @@ if __name__ == "__main__":
     "Available architectures"
     mode = "FC"  # FC, Resnet and NAIS-Net are available
     mode = "ConvNet"
+    # mode = "RK4_Classic"
+    mode = "Resnet"
     activation = "sine"  # sine and ReLU are available
     # activation = "ReLU"
     model = BlackScholesBarenblatt(Xi, T,

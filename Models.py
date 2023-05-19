@@ -12,8 +12,6 @@ class Sine(nn.Module):
         return torch.sin(x)
     
 
-
-
 class ConvNet(nn.Module):
 
     def __init__(self, layers, activation):
@@ -55,6 +53,110 @@ class ConvNet(nn.Module):
         out = out.view((100, 8))
         out = self.output(out)
 
+        return out
+    
+class RK4_Classic_block(nn.Module):
+
+    def __init__(self, input_size, activation):
+        super(RK4_Classic_block, self).__init__()
+
+        self.layer1 = nn.Linear(in_features=input_size, out_features=input_size)
+        self.layer2 = nn.Linear(in_features=input_size, out_features=input_size)
+        self.layer3 = nn.Linear(in_features=input_size, out_features=input_size)
+        self.layer4 = nn.Linear(in_features=input_size, out_features=input_size)
+
+        self.activation = activation
+
+    def forward(self, x):
+
+        k1 = self.layer1(x)
+        k1 = self.activation(k1)
+
+        layer_2_input = x + k1 / 2
+        k2 = self.layer2(layer_2_input)
+        k2 = self.activation(k2)
+
+        layer_3_input = x + k2 / 2
+        k3 = self.layer3(layer_3_input)
+        k3 = self.activation(k3)
+
+        layer_4_input = x + k3
+        k4 = self.layer4(layer_4_input)
+        k4 = self.activation(k4)
+
+        return x + 1/6 * (k1 + 2 * k2 + 2 * k3 + k4)
+
+class RK4_Classic(nn.Module):
+    def __init__(self, input_size, output_size, intermediate_size, activation, num_levels):
+        super(RK4_Classic, self).__init__()
+        self.activation = activation
+
+        self.in_layer = nn.Linear(in_features=input_size, out_features=intermediate_size)
+        self.rk_layers = nn.ModuleList()
+        for _ in range(num_levels):
+            self.rk_layers.append(RK4_Classic_block(intermediate_size, activation))
+
+        self.out_layer = nn.Linear(in_features=intermediate_size, out_features=output_size)
+
+    def forward(self, x):
+        out = self.in_layer(x)
+        out = self.activation(out)
+        for layer in self.rk_layers:
+            out = layer(out)
+        out = self.out_layer(out)
+        
+        return out
+    
+class RK4_38_block(nn.Module):
+
+    def __init__(self, input_size, activation):
+        super(RK4_Classic_block, self).__init__()
+
+        self.layer1 = nn.Linear(in_features=input_size, out_features=input_size)
+        self.layer2 = nn.Linear(in_features=input_size, out_features=input_size)
+        self.layer3 = nn.Linear(in_features=input_size, out_features=input_size)
+        self.layer4 = nn.Linear(in_features=input_size, out_features=input_size)
+
+        self.activation = activation
+
+    def forward(self, x):
+
+        k1 = self.layer1(x)
+        k1 = self.activation(k1)
+
+        layer_2_input = x + k1 / 3
+        k2 = self.layer2(layer_2_input)
+        k2 = self.activation(k2)
+
+        layer_3_input = x - k1 / 3 + k2
+        k3 = self.layer3(layer_3_input)
+        k3 = self.activation(k3)
+
+        layer_4_input = x + k1 - k2 + k3
+        k4 = self.layer4(layer_4_input)
+        k4 = self.activation(k4)
+
+        return x + 1/8 * (k1 + 3 * k2 + 3 * k3 + k4)
+    
+class RK4_38(nn.Module):
+    def __init__(self, input_size, output_size, intermediate_size, activation, num_levels):
+        super(RK4_38, self).__init__()
+        self.activation = activation
+
+        self.in_layer = nn.Linear(in_features=input_size, out_features=intermediate_size)
+        self.rk_layers = nn.ModuleList()
+        for _ in range(num_levels):
+            self.rk_layers.append(RK4_38_block(intermediate_size, activation))
+
+        self.out_layer = nn.Linear(in_features=intermediate_size, out_features=output_size)
+
+    def forward(self, x):
+        out = self.in_layer(x)
+        out = self.activation(out)
+        for layer in self.rk_layers:
+            out = layer(out)
+        out = self.out_layer(out)
+        
         return out
 
 class Resnet(nn.Module):

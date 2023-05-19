@@ -18,7 +18,9 @@ class FBSNN(ABC):
             torch.backends.cudnn.deterministic = True
 
         else:
-            self.device = torch.device("cpu")
+            # self.device = torch.device("cpu")
+            self.device = torch.device("mps")
+
 
         #  We set a random seed to ensure that your results are reproducible
         # torch.manual_seed(0)
@@ -57,6 +59,8 @@ class FBSNN(ABC):
             self.model = SDEnet(layers, activation=self.activation_function).to(self.device)
         elif self.mode == "ConvNet":
             self.model = ConvNet(layers, activation=self.activation_function).to(self.device)
+        elif self.mode == "RK4_Classic":
+            self.model = RK4_Classic(layers[0], layers[-1], layers[1], self.activation_function, 4).to(self.device)
 
         self.model.apply(self.weights_init)
 
