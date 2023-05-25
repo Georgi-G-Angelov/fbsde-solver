@@ -34,7 +34,10 @@ def u_exact(t, X):  # (N+1) x 1, (N+1) x D
 def run_model(model, N_Iter, learning_rate, multilevel=False):
     tot = time.time()
     samples = 5
-    print(model.device)
+    print("Training on ", model.device)
+    print("Network architecture: ", model.mode)
+    print("Number of parameters: ", model.count_parameters())
+
 
     if multilevel:
         num_levels = 5
@@ -79,7 +82,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('plots/Black-Scholes training loss' + "-multilevel-" + str(multilevel))
+    plt.savefig('plots/Black-Scholes training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
     plt.figure()
@@ -97,7 +100,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig('plots/Black-Scholes solution' + "-multilevel-" + str(multilevel))
+    plt.savefig('plots/Black-Scholes solution' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
     errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
@@ -128,16 +131,17 @@ if __name__ == "__main__":
 
     "Available architectures"
     mode = "FC"  # FC, Resnet and NAIS-Net are available
-    mode = "ConvNet"
-    # mode = "RK4_Classic"
-    mode = "Resnet"
+    # mode = "ConvNet"
+    mode = "RK4_Classic"
+    # mode = "RK4_38"
+    # mode = "Resnet"
+    # mode = "ContinuousNet"
+    mode = "ModifiedContinuousNet"
     activation = "sine"  # sine and ReLU are available
     # activation = "ReLU"
     model = BlackScholesBarenblatt(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
-    
-    print(model.count_parameters())
-    
+        
     # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 500, 5e-3, multilevel=True)
+    run_model(model, 1000, 5e-3, multilevel=True)

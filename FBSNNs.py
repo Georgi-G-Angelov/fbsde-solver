@@ -53,14 +53,21 @@ class FBSNN(ABC):
             self.model = Resnet(layers, stable=True, activation=self.activation_function).to(self.device)
         elif self.mode == "Resnet":
             self.model = Resnet(layers, stable=False, activation=self.activation_function).to(self.device)
-        elif self.mode == "Verlet":
-            self.model = VerletNet(layers, activation=self.activation_function).to(self.device)
-        elif self.mode == "SDEnet":
-            self.model = SDEnet(layers, activation=self.activation_function).to(self.device)
+        # elif self.mode == "Verlet":
+        #     self.model = VerletNet(layers, activation=self.activation_function).to(self.device)
+        # elif self.mode == "SDEnet":
+        #     self.model = SDEnet(layers, activation=self.activation_function).to(self.device)
         elif self.mode == "ConvNet":
             self.model = ConvNet(layers, activation=self.activation_function).to(self.device)
         elif self.mode == "RK4_Classic":
             self.model = RK4_Classic(layers[0], layers[-1], layers[1], self.activation_function, 4).to(self.device)
+        elif self.mode == "RK4_38":
+            self.model = RK4_38(layers[0], layers[-1], layers[1], self.activation_function, 4).to(self.device)
+        elif self.mode == "ContinuousNet":
+            self.model = ContinuousNet(layers[0], layers[-1], layers[1], self.activation_function, 4, 2).to(self.device)
+        elif self.mode == "ModifiedContinuousNet":
+            self.model = ModifiedContinuousNet(layers[0], layers[-1], layers[1], self.activation_function, 4).to(self.device)
+
 
         self.model.apply(self.weights_init)
 
