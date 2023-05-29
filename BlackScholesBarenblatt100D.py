@@ -59,7 +59,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     print("total time:", stop_time - tot, "s")
 
-    np.random.seed(42)
+    np.random.seed(69)
     t_test, W_test = model.fetch_minibatch()
     X_pred, Y_pred = model.predict(Xi, t_test, W_test)
 
@@ -122,8 +122,8 @@ if __name__ == "__main__":
     N = 50  # number of time snapshots
     D = 100  # number of dimensions
 
-    # layers = [D + 1] + 4 * [256] + [1]
-    layers = [D + 1] + 4 * [64] + [1]
+    layers = [D + 1] + 4 * [256] + [1]
+    # layers = [D + 1] + 4 * [64] + [1]
 
 
     Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
@@ -134,14 +134,14 @@ if __name__ == "__main__":
     # mode = "ConvNet"
     mode = "RK4_Classic"
     # mode = "RK4_38"
-    # mode = "Resnet"
+    mode = "Resnet"
     # mode = "ContinuousNet"
-    mode = "ModifiedContinuousNet"
+    # mode = "ModifiedContinuousNet"
     activation = "sine"  # sine and ReLU are available
     # activation = "ReLU"
     model = BlackScholesBarenblatt(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
         
-    # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1000, 5e-3, multilevel=True)
+    run_model(model, 15000, 1e-3)
+    # run_model(model, 1000, 5e-3, multilevel=True)

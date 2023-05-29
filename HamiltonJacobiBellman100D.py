@@ -57,7 +57,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     print("total time:", stop_time - tot, "s")
 
-    np.random.seed(42)
+    np.random.seed(69)
     t_test, W_test = model.fetch_minibatch()
     X_pred, Y_pred = model.predict(Xi, t_test, W_test)
 
