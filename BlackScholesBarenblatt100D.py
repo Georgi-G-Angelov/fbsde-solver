@@ -41,7 +41,9 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     if multilevel:
         num_levels = 5
-        learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
+        # learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
+        # learning_rates = [1e-2, 5e-3, 1e-3, 1e-3, 1e-3]
+        learning_rates = 5 * [1e-3]
 
         num_time_snapshots = 2
         for i in range(num_levels):
@@ -54,12 +56,13 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
        
     else:
+        model.N = 32
         graph = model.train(N_Iter, learning_rate)
         stop_time = time.time()
 
     print("total time:", stop_time - tot, "s")
 
-    np.random.seed(69)
+    np.random.seed(100)
     t_test, W_test = model.fetch_minibatch()
     X_pred, Y_pred = model.predict(Xi, t_test, W_test)
 
@@ -103,15 +106,17 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.savefig('plots/Black-Scholes solution' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
-    errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
+    # errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
+    # errors = np.sqrt((Y_test - Y_pred) ** 2)
+    errors = np.absolute((Y_test - Y_pred) / Y_test)
     mean_errors = np.mean(errors, 0)
     std_errors = np.std(errors, 0)
 
     plt.figure()
-    plt.plot(t_test[0, :, 0], mean_errors, 'b', label='mean')
+    plt.plot(t_test[0, :, 0], mean_errors, 'b', label='mean accross batch')
     plt.plot(t_test[0, :, 0], mean_errors + 2 * std_errors, 'r--', label='mean + two standard deviations')
     plt.xlabel('$t$')
-    plt.ylabel('relative error')
+    plt.ylabel('Average normalized error')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
     plt.savefig('plots/Black-Scholes errors, ' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
@@ -119,11 +124,11 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 if __name__ == "__main__":
     tot = time.time()
     M = 100  # number of trajectories (batch size)
-    N = 50  # number of time snapshots
+    N = 32  # number of time snapshots
     D = 100  # number of dimensions
 
-    layers = [D + 1] + 4 * [256] + [1]
-    # layers = [D + 1] + 4 * [64] + [1]
+    layers = [D + 1] + 4 * [200] + [1]
+    # layers = [D + 1] + 4 * [50] + [1]
 
 
     Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
@@ -131,10 +136,10 @@ if __name__ == "__main__":
 
     "Available architectures"
     mode = "FC"  # FC, Resnet and NAIS-Net are available
-    # mode = "ConvNet"
-    mode = "RK4_Classic"
+    mode = "ConvNet"
+    # mode = "RK4_Classic"
     # mode = "RK4_38"
-    mode = "Resnet"
+    # mode = "Resnet"
     # mode = "ContinuousNet"
     # mode = "ModifiedContinuousNet"
     activation = "sine"  # sine and ReLU are available
@@ -143,5 +148,5 @@ if __name__ == "__main__":
                                    M, N, D,
                                    layers, mode, activation)
         
-    run_model(model, 15000, 1e-3)
-    # run_model(model, 1000, 5e-3, multilevel=True)
+    # run_model(model, 10000, 1e-3)
+    run_model(model, 1000, 5e-3, multilevel=True)
