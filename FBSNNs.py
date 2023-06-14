@@ -16,14 +16,10 @@ class FBSNN(ABC):
         if torch.cuda.is_available():
             self.device = torch.device("cuda:" + str(device_idx) if torch.cuda.is_available() else "cpu")
             torch.backends.cudnn.deterministic = True
-
-        else:
-            # self.device = torch.device("cpu")
+        elif torch.backends.mps.is_available():
             self.device = torch.device("mps")
-
-
-        #  We set a random seed to ensure that your results are reproducible
-        # torch.manual_seed(0)
+        else:
+            self.device = torch.device("cpu")
 
         self.Xi = torch.from_numpy(Xi).float().to(self.device)  # initial point
         self.Xi.requires_grad = True
@@ -32,7 +28,7 @@ class FBSNN(ABC):
         self.M = M  # number of trajectories
         self.N = N  # number of time snapshots
         self.D = D  # number of dimensions
-        self.mode = mode  # architecture: FC, Resnet and NAIS-Net are available
+        self.mode = mode  # architecture
         self.activation = activation
         if activation == "sine":
             self.activation_function = Sine()
@@ -40,23 +36,8 @@ class FBSNN(ABC):
             self.activation_function = nn.ReLU()
 
         # initialize NN
-        if self.mode == "FC":
-            self.layers = []
-            for i in range(len(layers) - 2):
-                self.layers.append(nn.Linear(in_features=layers[i], out_features=layers[i + 1]))
-                self.layers.append(self.activation_function)
-            self.layers.append(nn.Linear(in_features=layers[-2], out_features=layers[-1]))
-
-            self.model = nn.Sequential(*self.layers).to(self.device)
-
-        elif self.mode == "NAIS-Net":
-            self.model = Resnet(layers, stable=True, activation=self.activation_function).to(self.device)
-        elif self.mode == "Resnet":
-            self.model = Resnet(layers, stable=False, activation=self.activation_function).to(self.device)
-        # elif self.mode == "Verlet":
-        #     self.model = VerletNet(layers, activation=self.activation_function).to(self.device)
-        # elif self.mode == "SDEnet":
-        #     self.model = SDEnet(layers, activation=self.activation_function).to(self.device)
+        if self.mode == "Resnet":
+            self.model = Resnet(layers, activation=self.activation_function).to(self.device)
         elif self.mode == "ConvNet":
             self.model = ConvNet(layers, activation=self.activation_function).to(self.device)
         elif self.mode == "RK4_Classic":
@@ -180,8 +161,6 @@ class FBSNN(ABC):
             loss.backward()
             self.optimizer.step()
 
-            # loss_temp = np.append(loss_temp, loss.cpu().detach().numpy())
-
             # Print
             if it % 100 == 0:
                 elapsed = time.time() - start_time
@@ -191,8 +170,6 @@ class FBSNN(ABC):
 
             # Loss
             if it % 100 == 0:
-                # self.training_loss.append(loss_temp.mean())
-                # loss_temp = np.array([])
                 self.training_loss.append(loss.cpu().detach().numpy())
 
                 self.iteration.append(it)
@@ -232,4 +209,3 @@ class FBSNN(ABC):
         M = self.M
         D = self.D
         return torch.diag_embed(torch.ones([M, D])).to(self.device)  # M x D x D
-    ###########################################################################

@@ -22,9 +22,6 @@ class BlackScholesBarenblatt(FBSNN):
     def sigma_tf(self, t, X, Y):  # M x 1, M x D, M x 1
         return 0.4 * torch.diag_embed(X)  # M x D x D
 
-    ###########################################################################
-
-
 def u_exact(t, X):  # (N+1) x 1, (N+1) x D
     r = 0.05
     sigma_max = 0.4
@@ -41,13 +38,10 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     if multilevel:
         num_levels = 5
-        # learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
-        # learning_rates = [1e-2, 5e-3, 1e-3, 1e-3, 1e-3]
-        learning_rates = 5 * [1e-3]
+        learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
 
         num_time_snapshots = 2
         for i in range(num_levels):
-            # print(i)
             model.N = num_time_snapshots
             graph = model.train(N_Iter, learning_rates[i])
             num_time_snapshots = num_time_snapshots * 2
@@ -85,7 +79,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('plots/Black-Scholes training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig('plots-lrs/Black-Scholes training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
     plt.figure()
@@ -103,11 +97,9 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig('plots/Black-Scholes solution' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig('plots-lrs/Black-Scholes solution' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
-    # errors = np.sqrt((Y_test - Y_pred) ** 2 / Y_test ** 2)
-    # errors = np.sqrt((Y_test - Y_pred) ** 2)
     errors = np.absolute((Y_test - Y_pred) / Y_test)
     mean_errors = np.mean(errors, 0)
     std_errors = np.std(errors, 0)
@@ -119,7 +111,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('Average normalized error')
     plt.title(str(D) + '-dimensional Black-Scholes-Barenblatt, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig('plots/Black-Scholes errors, ' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig('plots-lrs/Black-Scholes errors, ' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
 
 if __name__ == "__main__":
     tot = time.time()
@@ -128,25 +120,15 @@ if __name__ == "__main__":
     D = 100  # number of dimensions
 
     layers = [D + 1] + 4 * [200] + [1]
-    # layers = [D + 1] + 4 * [50] + [1]
-
 
     Xi = np.array([1.0, 0.5] * int(D / 2))[None, :]
     T = 1.0
 
-    "Available architectures"
-    mode = "FC"  # FC, Resnet and NAIS-Net are available
-    mode = "ConvNet"
-    # mode = "RK4_Classic"
-    # mode = "RK4_38"
-    # mode = "Resnet"
-    # mode = "ContinuousNet"
-    # mode = "ModifiedContinuousNet"
-    activation = "sine"  # sine and ReLU are available
-    # activation = "ReLU"
+    mode = "ModifiedContinuousNet"
+    activation = "sine"
+
     model = BlackScholesBarenblatt(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
         
-    # run_model(model, 10000, 1e-3)
-    run_model(model, 1000, 5e-3, multilevel=True)
+    run_model(model, 500, 1e-3, multilevel=True)

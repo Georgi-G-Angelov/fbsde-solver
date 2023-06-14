@@ -22,7 +22,7 @@ class AllenCahn(FBSNN):
     def sigma_tf(self, t, X, Y):  # M x 1, M x D, M x 1
         return super().sigma_tf(t, X, Y)  # M x D x D
 
-    ###########################################################################
+
 
 def run_model(model, N_Iter, learning_rate, multilevel=False):
     tot = time.time()
@@ -34,13 +34,10 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     if multilevel:
         num_levels = 5
-        # learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
-        # learning_rates = [1e-2, 5e-3, 1e-3, 1e-3, 1e-3]
-        learning_rates = 5 * [1e-3]
+        learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
 
         num_time_snapshots = 2
         for i in range(num_levels):
-            # print(i)
             model.N = num_time_snapshots
             graph = model.train(N_Iter, learning_rates[i])
             num_time_snapshots = num_time_snapshots * 2
@@ -79,7 +76,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title('20-dimensional Allen-Cahn')
     plt.legend()
-    plt.savefig("plots/Allen-Cahn solution" + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig("plots-lrs/Allen-Cahn solution" + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
 
     plt.figure()
     plt.plot(graph[0], graph[1])
@@ -90,7 +87,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('plots/Allen-Cahn training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig('plots-lrs/Allen-Cahn training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
 if __name__ == "__main__":
@@ -104,13 +101,12 @@ if __name__ == "__main__":
     T = 0.3
     Xi = np.zeros([1,D])
 
-    "Available architectures"
-    mode = "FC"  # FC, Resnet and NAIS-Net are available
-    mode = "ConvNet"
-    activation = "sine"  # sine and ReLU are available
+    mode = "ModifiedContinuousNet"
+    activation = "sine"
+
     model = AllenCahn(Xi, T,
                         M, N, D,
                         layers, mode, activation)
-    # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1000, 1e-3, multilevel=True)
+    
+    run_model(model, 500, 1e-3, multilevel=True)
     

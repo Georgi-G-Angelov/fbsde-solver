@@ -21,8 +21,6 @@ class HamiltonJacobiBellman(FBSNN):
     def sigma_tf(self, t, X, Y): # M x 1, M x D, M x 1
         return torch.mul(super().sigma_tf(t, X, Y), np.sqrt(2.0))# M x D x D
     
-    ###########################################################################
-
 
 def g(X): # MC x NC x D
         return np.log(0.5 + 0.5*np.sum(X**2, axis=2, keepdims=True)) # MC x N x 1
@@ -44,13 +42,10 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
 
     if multilevel:
         num_levels = 5
-        # learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
-        # learning_rates = [1e-2, 5e-3, 1e-3, 1e-3, 1e-3]
-        learning_rates = 5 * [1e-3]
+        learning_rates = [1e-2, 5e-3, 1e-3, 5e-4, 1e-4]
 
         num_time_snapshots = 2
         for i in range(num_levels):
-            # print(i)
             model.N = num_time_snapshots
             graph = model.train(N_Iter, learning_rates[i])
             num_time_snapshots = num_time_snapshots * 2
@@ -76,8 +71,6 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     if type(Y_pred).__module__ != 'numpy':
         Y_pred = Y_pred.cpu().detach().numpy()
 
-    # Y_test = u_exact(t_test[0,:,:], X_pred[0,:,:])
-    # Y_test = u_exact(t_test[:,:,:], X_pred[:,:,:])
     Y_test = []
     for i in range(samples):
         Y_test.append(u_exact(t_test[i,:,:], X_pred[i,:,:]))
@@ -88,12 +81,9 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     
     plt.figure()
     plt.plot(t_test[0:1,:,0].T,Y_pred[0:1,:,0].T,'b',label='Learned $u(t,X_t)$')
-    #plt.plot(t_test[1:5,:,0].T,Y_pred[1:5,:,0].T,'b')
-    # plt.plot(t_test[0,:,0].T,Y_test[:,0].T,'r--',label='Exact $u(t,X_t)$')
     plt.plot(t_test[0,:,0].T,Y_test[0, :,0].T,'r--',label='Exact $u(t,X_t)$')
 
     plt.plot(t_test[0:1,-1,0],Y_test_terminal[0:1,0],'ks',label='$Y_T = u(T,X_T)$')
-    #plt.plot(t_test[1:5,-1,0],Y_test_terminal[1:5,0])
 
     plt.plot(t_test[1:samples, :, 0].T, Y_pred[1:samples, :, 0].T, 'b')
     plt.plot(t_test[1:samples, :, 0].T, Y_test[1:samples, :, 0].T, 'r--')
@@ -104,19 +94,8 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('$Y_t = u(t,X_t)$')
     plt.title('100-dimensional Hamilton-Jacobi-Bellman')
     plt.legend()
-    plt.savefig("plots/Hamilton-Jacobi-Bellman solution" + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))    
+    plt.savefig("plots-lrs/Hamilton-Jacobi-Bellman solution" + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))    
     
-    # errors = np.sqrt((Y_test-Y_pred[0,:,:])**2/Y_test**2)
-    
-    # plt.figure()
-    # plt.plot(t_test[0,:,0],errors,'b')
-    # plt.xlabel('$t$')
-    # plt.ylabel('relative error')
-    # plt.title('100-dimensional Hamilton-Jacobi-Bellman')
-    # plt.legend()
-    # plt.savefig("plots/Hamilton-Jacobi-Bellman error" + "-multilevel-" + str(multilevel))
-    # plt.cla()
-
     errors = np.absolute((Y_test - Y_pred[:samples]) / Y_test)
     mean_errors = np.mean(errors, 0)
     std_errors = np.std(errors, 0)
@@ -128,7 +107,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('average normalized error')
     plt.title(str(D) + '-dimensional Hamilton-Jacobi-Bellman, ' + model.mode + "-" + model.activation)
     plt.legend()
-    plt.savefig("plots/Hamilton-Jacobi-Bellman errors" + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig("plots-lrs/Hamilton-Jacobi-Bellman errors" + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
  
@@ -141,7 +120,7 @@ def run_model(model, N_Iter, learning_rate, multilevel=False):
     plt.ylabel('Value')
     plt.yscale("log")
     plt.title('Evolution of the training loss')
-    plt.savefig('plots/Hamilton-Jacobi-Bellman training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
+    plt.savefig('plots-lrs/Hamilton-Jacobi-Bellman training loss' + model.mode + "-" + model.activation + "-multilevel-" + str(multilevel))
     plt.cla()
 
 if __name__ == "__main__":
@@ -156,10 +135,10 @@ if __name__ == "__main__":
     T = 1.0
 
     "Available architectures"
-    mode = "Resnet"  # FC, Resnet and NAIS-Net are available
-    activation = "sine"  # sine and ReLU are available
+    mode = "ConvNet"
+    activation = "sine"
     model = HamiltonJacobiBellman(Xi, T,
                                    M, N, D,
                                    layers, mode, activation)
-    # run_model(model, 2*10**4, 1e-3)
-    run_model(model, 1000, 1e-3, multilevel=True)
+
+    run_model(model, 500, 1e-3, multilevel=True)
